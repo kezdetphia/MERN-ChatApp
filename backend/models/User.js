@@ -6,7 +6,7 @@ const UserSchema = new Schema(
   {
     email: {
       type: String,
-      required: true,
+      // required: true,
       unique: true,
     },
     username: {
@@ -18,9 +18,7 @@ const UserSchema = new Schema(
       type: String,
       required: true,
     },
-  },
-  { timestamps: true } // Include timestamps option in the same object
+  }, { timestamps: true }
 );
 
-const User = mongoose.model("User", UserSchema);
-module.exports = User;
+module.exports = mongoose.model("User", UserSchema);
