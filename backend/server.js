@@ -4,14 +4,16 @@ const mongoose = require('mongoose')
 // const jwt = require('jsonwebtoken')
 const User = require('./models/User')
 const cors = require('cors')
-const { registerUser } = require('./controllers/registerUser')
+const cookieParser = require('cookie-parser')
+const { registerUser, getUserProfile } = require('./controllers/UserController')
 const app = express()
 require('dotenv').config()
-require('./controllers/registerUser')
+require('./controllers/UserController')
 
-const {PORT, MONGO_URI, JWT_SECRET, CLIENT_URL}= process.env
+const {PORT, MONGO_URI, CLIENT_URL}= process.env
 
 app.use(express.json());
+app.use(cookieParser())
 
 app.use(cors({
   credentials: true,
@@ -21,6 +23,8 @@ app.use(cors({
 
 //routes
 app.post('/register', registerUser );
+
+app.get('/profile', getUserProfile)
 
 
 
@@ -37,7 +41,7 @@ app.post('/register', registerUser );
 
 
 //feedback of connection
-mongoose.connect(MONGO_URI)
+mongoose.connect(MONGO_URI, { useNewUrlParser: true })
   .then(() => {
     //App listener
     app.listen(PORT, () => {
