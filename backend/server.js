@@ -2,10 +2,10 @@
 const express = require('express')
 const mongoose = require('mongoose')
 // const jwt = require('jsonwebtoken')
-const User = require('./models/User')
+// const User = require('./models/User')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
-const { registerUser, getUserProfile } = require('./controllers/UserController')
+const { registerUser, getUserProfile, loginUser } = require('./controllers/UserController')
 const app = express()
 require('dotenv').config()
 require('./controllers/UserController')
@@ -24,8 +24,9 @@ app.use(cors({
 //routes
 app.post('/register', registerUser );
 
-app.get('/profile', getUserProfile)
+app.post('/login', loginUser);
 
+app.get('/profile', getUserProfile);
 
 
 

@@ -1,9 +1,8 @@
 import { useState } from 'react'
-import Register from './components/Register'
+import RegisterAndLoginForm from './components/RegisterAndLoginForm'
 import axios from 'axios'
 import {UserContext, UserContextProvider } from './context/UserContext'
 import { useContext } from "react";
-
 
 
 function App() {
@@ -13,11 +12,16 @@ function App() {
   const {username } = useContext(UserContext)
   console.log(username)
 
+  if(username){
+    return 'logged in' + username
+  }
+
+
   return (
     <>
       <div >
         <UserContextProvider>
-          <Register />
+          <RegisterAndLoginForm />
         </UserContextProvider>
       </div>
     </>
