@@ -12,7 +12,7 @@ const wssServer = (server) => {
   //it emits a "connection" event on the WebSocket server, indicating that a new WebSocket 
   //connection has been established.
   server.on("upgrade", (req, socket, head) => {
-    //handleUpgrade -built in ws func that upgrades the http connection to websocket connection
+    //handleUpgrade -built in websocket func that upgrades the http connection to websocket connection
     //(ws) callback exexutes after the websocket upgrade is done
     wss.handleUpgrade(req, socket, head, (ws) => {
       //emit - notifies new conenction been establised
@@ -21,7 +21,7 @@ const wssServer = (server) => {
     });
   });
 
-  
+
   wss.on("connection", (ws, req) => {
     console.log("WebSocket connected");
     //extracting token string from header
@@ -37,13 +37,14 @@ const wssServer = (server) => {
             if (err) throw err;
             //destructure id and username from userData
             const { userId, username } = userData;
-            //storing the desctucted infromation (userData.userId, userData.username) inside the connection object userId and username key
-            //connection is inside 'wss'.client
+            //storing the desctucted infromation (userData.userId, userData.username) 
+            //setting the clients map the key is the ws-connection and the values are id and username
             clients.set(ws, {userId, username})
           });
         }
       }
     }
+    //clients- are key:value pairs, {websocket connections:HTTP requests}
     console.log([...clients.values()].map(c=>c.username))
  
 
