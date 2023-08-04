@@ -33,11 +33,12 @@ const wssServer = (server) => {
             //connection is inside 'wss'.client
             connection.userId = userId;
             connection.username = username;
+            clients.set(ws, {userId, username})
           });
         }
       }
     }
-    console.log([...wss.clients].map(c=>c.username))
+    console.log([...clients.values()].map(c=>c.username))
  
 
     clients.set(ws, req); // Add the client to the clients map
