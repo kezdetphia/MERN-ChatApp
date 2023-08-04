@@ -7,6 +7,7 @@ const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const { registerUser, getUserProfile, loginUser } = require('./controllers/UserController')
 const app = express()
+const ws = require('ws')
 require('dotenv').config()
 require('./controllers/UserController')
 
@@ -29,31 +30,30 @@ app.post('/login', loginUser);
 app.get('/profile', getUserProfile);
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-//feedback of connection
+//feedback of mongo connection
 mongoose.connect(MONGO_URI, { useNewUrlParser: true })
   .then(() => {
-    //App listener
-    app.listen(PORT, () => {
-      console.log(`Connected to db and listening on port ${PORT}`);
-    });
+    console.log('Connected to MongoDB')
   })
   .catch((error) => {
     console.log(error);
   });
 
+//App listener
+const server = app.listen(PORT, ()=>{
+  try{
+    console.log(`App is listening on ${PORT}`)
+  }catch(error){
+    console.log(error)
+  }
+})
 
+//websocet server connection
+const wss = new ws.WebSocketServer({server})
+wss.on('connection', (connection)=>{
+  console.log('Connected to websocket')
+  connection.send('hello')
+})
 
 
 

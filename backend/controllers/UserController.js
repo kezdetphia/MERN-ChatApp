@@ -91,15 +91,15 @@ const loginUser = async (req, res) => {
       res.cookie("token", token, { sameSite: "none", secure: true }).json({
         id: foundUser._id,
         username: foundUser.username,
+        msg: 'Logged in'
       });
     } else {
       //check why always only the first method gets called here
-      res.status(401).json({ message: "Invalid credentials" })
-        
     }
+    res.json({ message: "Invalid credentials" }).status(401)
   } catch (err) {
     console.log('Error logging in:', err);
-    res.status(500).json({ message: 'Error logging in' });
+    res.json({ message: `Error logging in` }).status(500)
   }
 };
 

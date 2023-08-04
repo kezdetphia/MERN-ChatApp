@@ -1,5 +1,6 @@
-import { useState } from 'react'
 import RegisterAndLoginForm from './components/RegisterAndLoginForm'
+import Chat from './components/Chat'
+
 import axios from 'axios'
 import {UserContext, UserContextProvider } from './context/UserContext'
 import { useContext } from "react";
@@ -21,7 +22,8 @@ function App() {
     <>
       <div >
         <UserContextProvider>
-          <RegisterAndLoginForm />
+          <Chat/>
+          {/* <RegisterAndLoginForm />  */}
         </UserContextProvider>
       </div>
     </>
