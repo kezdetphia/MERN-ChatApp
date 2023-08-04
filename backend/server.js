@@ -1,13 +1,12 @@
 //dependencies
 const express = require('express')
 const mongoose = require('mongoose')
-// const jwt = require('jsonwebtoken')
-// const User = require('./models/User')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const { registerUser, getUserProfile, loginUser } = require('./controllers/UserController')
 const app = express()
-const ws = require('ws')
+const http = require('http')
+const wsServer = require('./websocket-server')
 require('dotenv').config()
 require('./controllers/UserController')
 
@@ -39,21 +38,14 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true })
     console.log(error);
   });
 
+  
 //App listener
-const server = app.listen(PORT, ()=>{
-  try{
-    console.log(`App is listening on ${PORT}`)
-  }catch(error){
-    console.log(error)
-  }
+const server =  app.listen(PORT, ()=>{
+  console.log( `App is listening on port: ${PORT}`)
 })
 
-//websocet server connection
-const wss = new ws.WebSocketServer({server})
-wss.on('connection', (connection)=>{
-  console.log('Connected to websocket')
-  connection.send('helloo')
-})
+wsServer(server)
+
 
 
 
