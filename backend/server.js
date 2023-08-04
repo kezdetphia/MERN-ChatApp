@@ -5,7 +5,7 @@ const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const { registerUser, getUserProfile, loginUser } = require('./controllers/UserController')
 const app = express()
-const wsServer = require('./websocket-server')
+const wssServer = require('./websocket-server')
 require('dotenv').config()
 require('./controllers/UserController')
 
@@ -43,7 +43,7 @@ const server =  app.listen(PORT, ()=>{
   console.log( `App is listening on port: ${PORT}`)
 })
 
-wsServer(server)
+wssServer(server)
 
 
 

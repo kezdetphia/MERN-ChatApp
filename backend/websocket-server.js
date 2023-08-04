@@ -1,19 +1,27 @@
 const ws = require("ws");
 const jwt = require("jsonwebtoken");
-const { connection } = require("mongoose");
 const { JWT_SECRET } = process.env;
 
 const wssServer = (server) => {
   const wss = new ws.Server({ noServer: true });
   const clients = new Map();
 
+  //this code sets up an event listener for the "upgrade" event on the HTTP server
+  //When a client requests a websocket upgrade, the code uses the handleUpgrade method
+  //of the WebSocket server to complete the upgrade process. After the upgrade is successful, 
+  //it emits a "connection" event on the WebSocket server, indicating that a new WebSocket 
+  //connection has been established.
   server.on("upgrade", (req, socket, head) => {
-    // You can do additional checks here if needed, such as checking authentication or validating the connection.
+    //handleUpgrade -built in ws func that upgrades the http connection to websocket connection
+    //(ws) callback exexutes after the websocket upgrade is done
     wss.handleUpgrade(req, socket, head, (ws) => {
+      //emit - notifies new conenction been establised
+      //-ws represents the newly establised connection
       wss.emit("connection", ws, req);
     });
   });
 
+  
   wss.on("connection", (ws, req) => {
     console.log("WebSocket connected");
     //extracting token string from header
@@ -31,8 +39,6 @@ const wssServer = (server) => {
             const { userId, username } = userData;
             //storing the desctucted infromation (userData.userId, userData.username) inside the connection object userId and username key
             //connection is inside 'wss'.client
-            connection.userId = userId;
-            connection.username = username;
             clients.set(ws, {userId, username})
           });
         }

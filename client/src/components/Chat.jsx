@@ -41,35 +41,6 @@ const Chat = () => {
     };
   }, []); 
 
-  // useEffect(() => {
-  
-  //   // WebSocket connection setup
-  //   const ws = new WebSocket(`ws://localhost:3030`);
-  //   setWsConnection(ws)
-
-  //   ws.onopen = () => {
-  //      console.log('WebSocket connection established.');
-  //     // You can send initial data to the WebSocket server if needed
-  //   };
-
-  //   ws.onmessage = (event) => {
-  //     console.log('Received message:', event.data);
-  //     // Process the incoming WebSocket messages
-  //   };
-
-  //   ws.onclose = () => {
-  //     console.log('WebSocket connection closed.');
-  //     // Handle WebSocket connection close
-  //   };
-
-  //   return () => {
-  //     // Clean up the WebSocket connection when the component unmounts
-  //     ws.close();
-  //   };
-  // }, []);
-
-  
-
   return (
     <div className="flex h-screen ">
 
