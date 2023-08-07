@@ -23,7 +23,7 @@ function App() {
       <div >
         <UserContextProvider>
           <Chat/>
-          {/* <RegisterAndLoginForm />  */}
+          <RegisterAndLoginForm /> 
         </UserContextProvider>
       </div>
     </>
