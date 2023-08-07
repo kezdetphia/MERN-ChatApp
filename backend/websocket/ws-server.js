@@ -6,6 +6,7 @@ const wssServer = (server) => {
   const wss = new ws.Server({ noServer: true });
   const clients = new Map();
 
+  //sends the all user details to all users that are online
   const sendUpdatedOnlineUsers = ()=>{
     const onlineUsers = [...clients.values()].map((c)=>({
       userId: c.userId,

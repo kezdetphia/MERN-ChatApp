@@ -55,33 +55,6 @@ const registerUser = async (req, res) => {
 };
 
 
-// const loginUser = async (req, res) => {
-//   try{
-//     const { username, password, _id } = req.body;
-//     const foundUser = await User.findOne({ username });
-//     if (foundUser) {
-//       const passOk = bcrypt.compareSync(password, foundUser.password);
-//       if (passOk) {
-//         jwt.sign(
-//           { userId: foundUser._id, username },
-//           JWT_SECRET,
-//           (err, token) => {
-//             if (err) throw err;
-//             res.cookie("token", token, { sameSite: "none", secure: true }).json({
-//               id: foundUser._id,
-//               username: foundUser.username
-//             });
-//           }
-//         );
-//       }
-//     }
-//   }catch (err){
-//     console.log('Error logging in:', err)
-//     res.status(500).json({mssg: 'Error logging In'})
-
-//   }
-// };
-
 const loginUser = async (req, res) => {
   try {
     const { username, password, _id } = req.body;

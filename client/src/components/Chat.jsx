@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 const Chat = () => {
   const [wsConnection, setWsConnection] = useState(null)
+  const [onlinePeople, setOnlinePeople] = useState({})
 
   useEffect(() => {
     const setupWebSocket = async () => {
@@ -10,22 +11,24 @@ const Chat = () => {
         const ws = new WebSocket(`ws://localhost:3030`);
         setWsConnection(ws);
 
-        await new Promise((resolve) => {
-          ws.onopen = () => {
-            console.log('WebSocket connection established.');
-            resolve(); // Resolve the promise when the WebSocket connection is open
-          };
-        });
+        ws.addEventListener('message', handleMessage)
 
-        ws.onmessage = (event) => {
-          console.log('Received message:', event.data);
-          // Process the incoming WebSocket messages
-        };
+        // await new Promise((resolve) => {
+        //   ws.onopen = () => {
+        //     console.log('WebSocket connection established.');
+        //     resolve(); // Resolve the promise when the WebSocket connection is open
+        //   };
+        // });
 
-        ws.onclose = () => {
-          console.log('WebSocket connection closed.');
-          // Handle WebSocket connection close
-        };
+        // ws.onmessage = (event) => {
+        //   console.log('Received message:', event.data);
+        //   // Process the incoming WebSocket messages
+        // };
+
+        // ws.onclose = () => {
+        //   console.log('WebSocket connection closed.');
+        //   // Handle WebSocket connection close
+        // };
       } catch (error) {
         console.error('Error setting up WebSocket:', error);
       }
@@ -41,11 +44,33 @@ const Chat = () => {
     };
   }, []); 
 
+
+  const showOnLinePeople=(peopleArray)=>{
+    const people = {};
+    peopleArray.forEach(({userId, username})=>{
+      people[userId] = username
+    })
+    setOnlinePeople(people)
+  }
+
+
+  const handleMessage = (e)=>{
+    const messageData = JSON.parse(e.data)
+    console.log(messageData)
+    if('online' in messageData){
+      showOnLinePeople(messageData.online)
+    }
+  }
+
   return (
     <div className="flex h-screen ">
 
       <div className="bg-white-100 w-1/3">
-        CONTAct
+        {Object.entries(onlinePeople).map(([key, value])=>(
+          <div key={key}>
+            {value}
+          </div>
+        ))}
       </div>
       <div className="flex flex-col bg-violet-100 w-2/3 p-2 ">
         <div className="flex-grow">

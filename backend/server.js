@@ -5,7 +5,7 @@ const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const { registerUser, getUserProfile, loginUser } = require('./controllers/UserController')
 const app = express()
-const wssServer = require('./websocket-server')
+const wssServer = require('./websocket/ws-server')
 require('dotenv').config()
 require('./controllers/UserController')
 
