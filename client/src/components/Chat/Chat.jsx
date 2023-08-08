@@ -42,10 +42,17 @@ const Chat = () => {
   };
 
   const handleMessage = (e) => {
-    const messageData = JSON.parse(e.data);
-    console.log(messageData);
-    if ("online" in messageData) {
-      showOnLinePeople(messageData.online);
+    try {
+      const messageData = JSON.parse(e.data);
+      console.log(messageData);
+  
+      if ("online" in messageData) {
+        showOnLinePeople(messageData.online);
+      } else {
+        console.log(messageData);
+      }
+    } catch (error) {
+      console.error("Error parsing JSON:", error);
     }
   };
 
@@ -53,7 +60,7 @@ const Chat = () => {
   const handleSendMessage=(e)=>{
     e.preventDefault()
     wsConnection.send(JSON.stringify({
-        receipent: selectedUserId,
+        recipient: selectedUserId,
         text: newMessageText
     }))
   }

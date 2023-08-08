@@ -80,9 +80,20 @@ const wssServer = (server) => {
     ws.on("message", (message) => {
       const buffer = Buffer.from(message)
       const decodedString = buffer.toString('utf-8')
-      console.log("Received message", decodedString);
-    
-    });
+      try{
+        const {recipient, text} = JSON.parse(decodedString)
+        console.log(text)
+        if (recipient && message){
+          [...clients]
+            .filter(c=> c.userId===recipient)
+            .forEach(c=> c.send(JSON.stringify({text})))
+        }
+      }catch(error){
+        console.error('Error parsing JSON', error)
+
+      }
+    })
+
 
     ws.on("close", () => {
       console.log("WebSocket connection closed");
