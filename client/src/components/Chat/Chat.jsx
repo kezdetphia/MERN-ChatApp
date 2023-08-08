@@ -7,6 +7,7 @@ const Chat = () => {
   const [wsConnection, setWsConnection] = useState(null);
   const [onlinePeople, setOnlinePeople] = useState({});
   const [selectedUserId, setSelectedUserId] = useState(null);
+  const [newMessageText, setNewMessageText] = useState('')
 
   const { username, id } = useContext(UserContext);
 
@@ -52,7 +53,7 @@ const Chat = () => {
 
   return (
     <div className="flex h-screen">
-      <div className="bg-white w-1/3 ">
+      <div className="bg-white w-1/3 border border-gray-400 shadow-lg ">
         <Logo />
         {username}
         {Object.entries(onlinePeopleExcludingMe).map(([userId, user]) => (
@@ -76,11 +77,13 @@ const Chat = () => {
         ))}
       </div>
 
-      <div className="flex flex-col bg-violet-100 w-2/3 p-2 ">
+      <div className="flex flex-col bg-green-200 w-2/3 p-2 ">
         <div className="flex-grow">
           {!selectedUserId && (
             <div className="flex h-full items-center justify-center">
-              <div className="text-gray-300">no selected person</div>
+              <div className="text-gray-400"> 
+                &larr; Select a person you want to ChatMe
+              </div>
             </div>
           )}
         </div>
@@ -88,8 +91,13 @@ const Chat = () => {
           <input
             type="text"
             placeholder="Add your message here"
-            className="rounded-sm bg-white botder p-2 flex-grow border"
-          ></input>
+            className="rounded-sm bg-white border p-2 flex-grow"
+            onChange={e => setNewMessageText(e.target.value)} 
+            
+            value={newMessageText}
+
+          />
+        
           <button className="rounded-sm bg-blue-500 p-2 text-white">
             <svg
               xmlns="http://www.w3.org/2000/svg"
