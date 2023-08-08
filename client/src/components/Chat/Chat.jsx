@@ -8,6 +8,7 @@ const Chat = () => {
   const [onlinePeople, setOnlinePeople] = useState({});
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [newMessageText, setNewMessageText] = useState('')
+  const [messages, setMessages] = useState([])
 
   const { username, id } = useContext(UserContext);
 
@@ -63,6 +64,8 @@ const Chat = () => {
         recipient: selectedUserId,
         text: newMessageText
     }))
+    setNewMessageText('')
+    setMessages(prev=>([...prev, {text: newMessageText, isOur:true}]))
   }
 
   //new object from onlinepeople object state
@@ -105,6 +108,22 @@ const Chat = () => {
               </div>
             </div>
           )}
+
+          {!!selectedUserId &&(
+            <div>
+          {messages.map((message)=>(
+            <div key={message.idx}>
+              {message.text}
+            </div>
+            ))}
+          </div>
+          )}
+
+
+
+
+
+
         </div>
         {selectedUserId && (
         <form onSubmit={handleSendMessage} className="flex gap-2 ">

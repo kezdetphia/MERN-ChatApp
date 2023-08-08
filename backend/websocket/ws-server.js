@@ -82,8 +82,8 @@ const wssServer = (server) => {
       const decodedString = buffer.toString('utf-8')
       try{
         const {recipient, text} = JSON.parse(decodedString)
-        console.log(text)
-        if (recipient && message){
+        console.log('THIS IS TEXT', text)
+        if (recipient && text){
           [...clients]
             .filter(c=> c.userId===recipient)
             .forEach(c=> c.send(JSON.stringify({text})))
