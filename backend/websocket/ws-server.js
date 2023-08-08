@@ -40,9 +40,11 @@ const wssServer = (server) => {
     });
   });
 
+
   wss.on("connection", (ws, req) => {
     console.log("WebSocket connected");
     //extracting token string from header
+    //reading username and id from the cookie from the connection
     const cookies = req.headers.cookie;
     if (cookies) {
       const tokenCookieString = cookies
@@ -71,11 +73,15 @@ const wssServer = (server) => {
     //clients- are key:value pairs, {websocket connections:HTTP requests}
     console.log([...clients.values()].map((c) => c.username));
 
-    // clients.set(ws, req); // Add the client to the clients map
 
+
+    
    
     ws.on("message", (message) => {
-      console.log("Received message", message);
+      const buffer = Buffer.from(message)
+      const decodedString = buffer.toString('utf-8')
+      console.log("Received message", decodedString);
+    
     });
 
     ws.on("close", () => {

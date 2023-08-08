@@ -32,6 +32,7 @@ const Chat = () => {
     };
   }, []);
 
+
   const showOnLinePeople = (peopleArray) => {
     const people = {};
     peopleArray.forEach(({ userId, username }) => {
@@ -48,16 +49,17 @@ const Chat = () => {
     }
   };
 
+  //submit form handling, sends the text and the userId
   const handleSendMessage=(e)=>{
     e.preventDefault()
-    ws.send(JSON.stringify({
-      message: {
+    wsConnection.send(JSON.stringify({
         receipent: selectedUserId,
         text: newMessageText
-      }
     }))
   }
 
+  //new object from onlinepeople object state
+  //that excludes 'me' the user from contacts list
   const onlinePeopleExcludingMe = { ...onlinePeople };
   delete onlinePeopleExcludingMe[id];
 
@@ -87,25 +89,24 @@ const Chat = () => {
         ))}
       </div>
 
-      <div className="flex flex-col bg-green-200 w-2/3 p-2 ">
+      <div className="flex flex-col bg-pink-50 w-2/3 p-2 ">
         <div className="flex-grow">
           {!selectedUserId && (
             <div className="flex h-full items-center justify-center">
-              <div className="text-gray-400"> 
-                &larr; Select a person you want to ChatMe
+              <div className="text-blue-600 flex items-center " > 
+                &larr; Select a person you want to < Logo/>
               </div>
             </div>
           )}
         </div>
+        {selectedUserId && (
         <form onSubmit={handleSendMessage} className="flex gap-2 ">
           <input
             type="text"
             placeholder="Add your message here"
             className="rounded-sm bg-white border p-2 flex-grow"
             onChange={e => setNewMessageText(e.target.value)} 
-            
             value={newMessageText}
-
           />
         
           <button type="submit" className="rounded-sm bg-blue-500 p-2 text-white">
@@ -125,6 +126,7 @@ const Chat = () => {
             </svg>
           </button>
         </form>
+          )}
       </div>
     </div>
   );
