@@ -1,6 +1,7 @@
 const ws = require("ws");
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = process.env;
+const Message = require("../models/Message");
 
 const wssServer = (server) => {
   const wss = new ws.Server({ noServer: true });
@@ -8,11 +9,13 @@ const wssServer = (server) => {
 
   //sends the all user details to all users that are online
   const sendUpdatedOnlineUsers = ()=>{
+    //gets the userId and username from clients Map and assigns to onlineUsers variabe
     const onlineUsers = [...clients.values()].map((c)=>({
       userId: c.userId,
       username: c.username
     }))
-
+    //iterates through clients Map, the key(client) is the websocket object
+    //the value is userId and username
     clients.forEach((value,client)=>{
       try{
         client.send(JSON.stringify({
@@ -20,7 +23,6 @@ const wssServer = (server) => {
         }))
       }catch(error){
         console.error('Error sending data to client', error)
-
       }
     })
   }
@@ -40,7 +42,8 @@ const wssServer = (server) => {
     });
   });
 
-
+  //this event listener triggers when a new WS connection
+  //is established between the client and server
   wss.on("connection", (ws, req) => {
     console.log("WebSocket connected");
     //extracting token string from header
@@ -77,16 +80,35 @@ const wssServer = (server) => {
 
     
    
-    ws.on("message", (message) => {
+    ws.on("message", async (message) => {
       const buffer = Buffer.from(message)
       const decodedString = buffer.toString('utf-8')
       try{
         const {recipient, text} = JSON.parse(decodedString)
         console.log('THIS IS TEXT', text)
         if (recipient && text){
+          
+          //if recipient and text are present
+          //save the data in mongoDB
+          const messageDocument = await Message.create({
+            //ws. userId is whoever is logged in from a device
+            sender: ws.userId,
+            recipient: recipient,
+            text: text
+          });
+
+          //Loop thru clients and findsh the client with the
+          //recipients userId. Then loop through the found id's
+          //(there might be more of the same id from different devices)
+          //and the send the json with the data
           [...clients]
             .filter(c=> c.userId===recipient)
-            .forEach(c=> c.send(JSON.stringify({text})))
+            .forEach(c=> c.send(JSON.stringify({
+              text: text,
+              sender: ws.userId,
+              id: messageDocument._id
+            }
+          )))
         }
       }catch(error){
         console.error('Error parsing JSON', error)

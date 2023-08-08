@@ -42,6 +42,9 @@ const Chat = () => {
     setOnlinePeople(people);
   };
 
+
+  //this is a WebSocket eventListener, therefore this event (e) is
+  // referring to the websocket event which has a 'data' key
   const handleMessage = (e) => {
     try {
       const messageData = JSON.parse(e.data);
