@@ -1,5 +1,5 @@
 import RegisterAndLoginForm from './components/RegisterAndLoginForm'
-import Chat from './components/Chat'
+import Chat from './components/Chat/Chat'
 
 import axios from 'axios'
 import {UserContext, UserContextProvider } from './context/UserContext'

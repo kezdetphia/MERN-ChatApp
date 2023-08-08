@@ -2,7 +2,7 @@
 module.exports =  {
   content: [
     "./src/*.jsx",
-    "./src/components/*.jsx"
+    "./src/components/chat/*.jsx"
 
   ],
   theme: {
