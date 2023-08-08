@@ -48,6 +48,16 @@ const Chat = () => {
     }
   };
 
+  const handleSendMessage=(e)=>{
+    e.preventDefault()
+    ws.send(JSON.stringify({
+      message: {
+        receipent: selectedUserId,
+        text: newMessageText
+      }
+    }))
+  }
+
   const onlinePeopleExcludingMe = { ...onlinePeople };
   delete onlinePeopleExcludingMe[id];
 
@@ -87,7 +97,7 @@ const Chat = () => {
             </div>
           )}
         </div>
-        <div className="flex gap-2 ">
+        <form onSubmit={handleSendMessage} className="flex gap-2 ">
           <input
             type="text"
             placeholder="Add your message here"
@@ -98,7 +108,7 @@ const Chat = () => {
 
           />
         
-          <button className="rounded-sm bg-blue-500 p-2 text-white">
+          <button type="submit" className="rounded-sm bg-blue-500 p-2 text-white">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -114,7 +124,7 @@ const Chat = () => {
               />
             </svg>
           </button>
-        </div>
+        </form>
       </div>
     </div>
   );
