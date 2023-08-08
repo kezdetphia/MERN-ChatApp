@@ -64,9 +64,11 @@ const wssServer = (server) => {
             }
             //destructure id and username from userData
             const { userId, username } = userData;
+            // ws.userId = userId
             //storing the desctucted infromation (userData.userId, userData.username)
             //setting the clients map the key is the ws-connection and the values are id and username
             clients.set(ws, { userId, username });
+
             console.log('clients been set', userId, username)
           });
           sendUpdatedOnlineUsers()
@@ -74,20 +76,20 @@ const wssServer = (server) => {
       }
     }
     //clients- are key:value pairs, {websocket connections:HTTP requests}
-    console.log([...clients.values()].map((c) => c.username));
+    console.log([...clients.values()].map((c) => c.userId));
 
 
 
     
    
     ws.on("message", async (message) => {
-      const buffer = Buffer.from(message)
-      const decodedString = buffer.toString('utf-8')
+      // const buffer = Buffer.from(message)
+      // const decodedString = buffer.toString('utf-8')
+      const messageData = JSON.parse(message.toString())
+      const {recipient, text} = messageData
       try{
-        const {recipient, text} = JSON.parse(decodedString)
-        console.log('THIS IS TEXT', text)
+        console.log('THIS IS TEXT and recipoent id', text, recipient)
         if (recipient && text){
-          
           //if recipient and text are present
           //save the data in mongoDB
           const messageDocument = await Message.create({
@@ -96,19 +98,42 @@ const wssServer = (server) => {
             recipient: recipient,
             text: text
           });
-
+       
           //Loop thru clients and findsh the client with the
           //recipients userId. Then loop through the found id's
           //(there might be more of the same id from different devices)
           //and the send the json with the data
-          [...clients]
-            .filter(c=> c.userId===recipient)
-            .forEach(c=> c.send(JSON.stringify({
-              text: text,
-              sender: ws.userId,
-              id: messageDocument._id
+
+          // [...clients]
+          //   .filter(c => {
+          //     console.log("c.userId:", c.userId); // Log c.userId for debugging
+          //     console.log("recipient:", recipient); // Log the recipient for debugging
+          //     return c.userId === recipient;
+          //   })
+          //   .forEach(c=> c.send(JSON.stringify({
+          //     text: text,
+          //     sender: ws.userId,
+          //     recipient: recipient,
+          //     id: messageDocument._id
+          //   }
+          //   )))
+
+          for (const [client, userData] of clients.entries()) {
+            console.log("Client userId:", userData.userId); // Log userId for debugging
+            console.log("Recipient:", recipient); // Log the recipient for debugging
+          
+            if (userData.userId === recipient && client.readyState === ws.OPEN) {
+              client.send(JSON.stringify({
+                text: text,
+                sender: ws.userId,
+                recipient: recipient,
+                id: messageDocument._id
+              }));
             }
-          )))
+          }
+          
+           
+         
         }
       }catch(error){
         console.error('Error parsing JSON', error)

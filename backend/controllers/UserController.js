@@ -28,25 +28,6 @@ const registerUser = async (req, res) => {
       .cookie('token', token, {sameSite: 'none', secure: true})
       .status(201)
       .json({message: 'JWT Created', id: createdUser._id})
-
-    // jwt.sign(
-    //   { userID: createdUser._id, username },
-    //   JWT_SECRET,
-    //   (err, token) => {
-    //     if (err) throw err;
-    //     //saving the token in the client cookies
-    //     res
-    //     //samsite:none allows the cookie to be sent cross-site
-    //     //secure true ensures that cookie will only be sent thru HTTP connections
-    //       .cookie("token", token, { sameSite: "none", secure: true })
-    //       .status(201)
-    //       .json({
-    //         message: "JWT generated",
-    //         _id: createdUser._id,
-    //       });
-    //   }
-    // );
-
   } catch (error) {
     console.error("Error creating user:", error);
     res.status(500).json("Error creating user");
