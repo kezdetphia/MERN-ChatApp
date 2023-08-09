@@ -6,7 +6,7 @@ import uniqBy from 'lodash/uniqBy';
 
 
 const Chat = () => {
-  const [wsConnection, setWsConnection] = useState(null);
+  const [ws, setWs] = useState(null);
   const [onlinePeople, setOnlinePeople] = useState({});
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [newMessageText, setNewMessageText] = useState("");
@@ -15,24 +15,10 @@ const Chat = () => {
   const { username, id } = useContext(UserContext);
 
   useEffect(() => {
-    const setupWebSocket = async () => {
-      try {
         // WebSocket connection setup
         const ws = new WebSocket(`ws://localhost:3030`);
-        setWsConnection(ws);
+        setWs(ws);
         ws.addEventListener("message", handleMessage);
-      } catch (error) {
-        console.error("Error setting up WebSocket:", error);
-      }
-    };
-    setupWebSocket();
-
-    return () => {
-      // Clean up the WebSocket connection when the component unmounts
-      if (wsConnection) {
-        wsConnection.close();
-      }
-    };
   }, []);
 
   const showOnLinePeople = (peopleArray) => {
@@ -47,35 +33,28 @@ const Chat = () => {
   //this is a WebSocket eventListener, therefore this event (e) is
   // referring to the websocket event which has a 'data' key
   const handleMessage = async (e) => {
-    try {
-      const messageData = await JSON.parse(e.data);
-      console.log("message data Chat1:", messageData);
-
+      const messageData = JSON.parse(e.data);
+      console.log({e,messageData})
       if ("online" in messageData) {
          showOnLinePeople(messageData.online);
-         console.log('showOnlunePeople',messageData.online )
-      } else if ('text' in messageData) {
-        console.log('text is in messagedata')
-        setMessages(prev=> ([...prev, {...messageData}]))
-
+      } else {
+        setMessages(prev => ([...prev, {isOur:false, text: messageData.text}]))
       }
-    } catch (error) {
-      console.error("Error parsing JSON:", error);
-    }
+  
   };
 
   //submit form handling, sends the text and the userId
-  const handleSendMessage = async (e) => {
+  const sendMessage = async (e) => {
     e.preventDefault();
     try {
-      await wsConnection.send(
+      await ws.send(
         JSON.stringify({
           recipient: selectedUserId,
           text: newMessageText,
         })
         );
         setNewMessageText("");
-        setMessages((prev) => [...prev, { text: newMessageText, isOur: false }]);
+        setMessages((prev) => [...prev, { text: newMessageText, isOur: true }]);
     } catch (err) {
       console.error(err);
     }
@@ -124,16 +103,16 @@ const Chat = () => {
             </div>
           )}
 
-          {selectedUserId && (
+          {!!selectedUserId && (
             <div>
-              {messagesNoDuplicates.map((message, idx) => (
+              {messages.map((message, idx) => (
                 <div key={idx}>{message.text}</div>
               ))}
             </div>
           )}
         </div>
-        {selectedUserId && (
-          <form onSubmit={handleSendMessage} className="flex gap-2 ">
+        {!!selectedUserId && (
+          <form onSubmit={sendMessage} className="flex gap-2 ">
             <input
               type="text"
               placeholder="Add your message here"
