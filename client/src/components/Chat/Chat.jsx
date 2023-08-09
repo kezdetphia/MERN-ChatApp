@@ -19,8 +19,8 @@ const Chat = () => {
       try {
         // WebSocket connection setup
         const ws = new WebSocket(`ws://localhost:3030`);
-        ws.addEventListener("message", handleMessage);
         setWsConnection(ws);
+        ws.addEventListener("message", handleMessage);
       } catch (error) {
         console.error("Error setting up WebSocket:", error);
       }
@@ -53,10 +53,10 @@ const Chat = () => {
 
       if ("online" in messageData) {
          showOnLinePeople(messageData.online);
-         console.log('online is in messagedata')
+         console.log('showOnlunePeople',messageData.online )
       } else if ('text' in messageData) {
         console.log('text is in messagedata')
-        setMessages((prev)=> ([...prev, {...messageData}]))
+        setMessages(prev=> ([...prev, {...messageData}]))
 
       }
     } catch (error) {

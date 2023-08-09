@@ -8,24 +8,26 @@ const wssServer = (server) => {
   const clients = new Map();
 
   //sends the all user details to all users that are online
-  const sendUpdatedOnlineUsers = ()=>{
+  const sendUpdatedOnlineUsers = () => {
     //gets the userId and username from clients Map and assigns to onlineUsers variabe
-    const onlineUsers = [...clients.values()].map((c)=>({
+    const onlineUsers = [...clients.values()].map((c) => ({
       userId: c.userId,
-      username: c.username
-    }))
+      username: c.username,
+    }));
     //iterates through clients Map, the key(client) is the websocket object
     //the value is userId and username
-    clients.forEach((value,client)=>{
-      try{
-        client.send(JSON.stringify({
-          online: onlineUsers
-        }))
-      }catch(error){
-        console.error('Error sending data to client', error)
+    clients.forEach((value, client) => {
+      try {
+        client.send(
+          JSON.stringify({
+            online: onlineUsers,
+          })
+        );
+      } catch (error) {
+        console.error("Error sending data to client", error);
       }
-    })
-  }
+    });
+  };
 
   //this code sets up an event listener for the "upgrade" event on the HTTP server
   //When a client requests a websocket upgrade, the code uses the handleUpgrade method
@@ -46,107 +48,65 @@ const wssServer = (server) => {
   //is established between the client and server
   wss.on("connection", (ws, req) => {
     console.log("WebSocket connected");
-    //extracting token string from header
-    //reading username and id from the cookie from the connection
     const cookies = req.headers.cookie;
     if (cookies) {
-      const tokenCookieString = cookies
-        .split(";")
-        .find((str) => str.startsWith("token="));
-      if (tokenCookieString) {
-        const token = tokenCookieString.split("=")[1];
-        if (token) {
-          jwt.verify(token, JWT_SECRET, (err, userData) => {
-            if (err) {
-              console.error("JWT verification error:", err.message);
-              ws.close(1000, "Invalid JWT token");
-              return;
-            }
-            //destructure id and username from userData
-            const { userId, username } = userData;
-            // ws.userId = userId
-            //storing the desctucted infromation (userData.userId, userData.username)
-            //setting the clients map the key is the ws-connection and the values are id and username
-            clients.set(ws, { userId, username });
+        const tokenCookieString = cookies
+            .split(";")
+            .find((str) => str.startsWith("token="));
+        if (tokenCookieString) {
+            const token = tokenCookieString.split("=")[1];
+            if (token) {
+                jwt.verify(token, JWT_SECRET, (err, userData) => {
+                    if (err) {
+                        console.error("JWT verification error:", err.message);
+                        ws.close(1000, "Invalid JWT token");
+                        return;
+                    }
+                    const { userId, username } = userData;
 
-            console.log('clients been set', userId, username)
-          });
-          sendUpdatedOnlineUsers()
+                    // Store the user information in the clients Map
+                    clients.set(ws, { userId, username });
+
+                    console.log("Client connected:", userId, username);
+                    
+                    sendUpdatedOnlineUsers(); // Update online users list
+                });
+            }
         }
-      }
     }
-    //clients- are key:value pairs, {websocket connections:HTTP requests}
-    console.log([...clients.values()].map((c) => c.userId));
 
-
-
-    
-   
     ws.on("message", async (message) => {
-      // const buffer = Buffer.from(message)
-      // const decodedString = buffer.toString('utf-8')
-      const messageData = JSON.parse(message.toString())
-      const {recipient, text} = messageData
-      try{
-        console.log('THIS IS TEXT and recipoent id', text, recipient)
-        if (recipient && text){
-          //if recipient and text are present
-          //save the data in mongoDB
-          const messageDocument = await Message.create({
-            //ws. userId is whoever is logged in from a device
-            sender: ws.userId,
-            recipient: recipient,
-            text: text
-          });
-       
-          //Loop thru clients and findsh the client with the
-          //recipients userId. Then loop through the found id's
-          //(there might be more of the same id from different devices)
-          //and the send the json with the data
+        const messageData = JSON.parse(message.toString());
+        const { recipient, text } = messageData;
+        try {
+            console.log("Received message:", text, recipient);
+            if (recipient && text) {
+                const messageDocument = await Message.create({
+                    sender: ws.userId, // Use userId captured from userData
+                    recipient: recipient,
+                    text: text,
+                });
 
-          // [...clients]
-          //   .filter(c => {
-          //     console.log("c.userId:", c.userId); // Log c.userId for debugging
-          //     console.log("recipient:", recipient); // Log the recipient for debugging
-          //     return c.userId === recipient;
-          //   })
-          //   .forEach(c=> c.send(JSON.stringify({
-          //     text: text,
-          //     sender: ws.userId,
-          //     recipient: recipient,
-          //     id: messageDocument._id
-          //   }
-          //   )))
-
-          for (const [client, userData] of clients.entries()) {
-            console.log("Client userId:", userData.userId); // Log userId for debugging
-            console.log("Recipient:", recipient); // Log the recipient for debugging
-          
-            if (userData.userId === recipient && client.readyState === ws.OPEN) {
-              client.send(JSON.stringify({
-                text: text,
-                sender: ws.userId,
-                recipient: recipient,
-                id: messageDocument._id
-              }));
+                [...wss.clients]
+                    .filter(c => c.userId === recipient)
+                    .forEach(c => c.send(JSON.stringify({
+                        text: text,
+                        sender: ws.userId,
+                        id: messageDocument._id,
+                        recipient: recipient
+                    })));
             }
-          }
-          
-           
-         
+        } catch (error) {
+            console.error("Error parsing JSON", error);
         }
-      }catch(error){
-        console.error('Error parsing JSON', error)
-
-      }
-    })
-
+    });
 
     ws.on("close", () => {
-      console.log("WebSocket connection closed");
-      clients.delete(ws); // Remove the client from the clients map when the connection is closed
+        console.log("WebSocket connection closed");
+        clients.delete(ws);
     });
-  });
+});
+
 };
 
 module.exports = wssServer;
