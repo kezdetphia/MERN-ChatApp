@@ -37,8 +37,8 @@ const Chat = () => {
       console.log({e,messageData})
       if ("online" in messageData) {
          showOnLinePeople(messageData.online);
-      } else {
-        setMessages(prev => ([...prev, {isOur:false, text: messageData.text}]))
+      } else if ('text' in messageData) {
+        setMessages(prev => ([...prev, {...messageData}]))
       }
   
   };
@@ -54,7 +54,12 @@ const Chat = () => {
         })
         );
         setNewMessageText("");
-        setMessages((prev) => [...prev, { text: newMessageText, isOur: true }]);
+        setMessages((prev) => [...prev, { 
+          text: newMessageText,
+          sender: id,
+          recipient: selectedUserId
+        }]
+      );
     } catch (err) {
       console.error(err);
     }
@@ -65,7 +70,7 @@ const Chat = () => {
   const onlinePeopleExcludingMe = { ...onlinePeople };
   delete onlinePeopleExcludingMe[id];
 
-  const messagesNoDuplicates = uniqBy(messages,id)
+  const messagesNoDuplicates = uniqBy(messages,'id')
 
   return (
     <div className="flex h-screen">
@@ -105,8 +110,13 @@ const Chat = () => {
 
           {!!selectedUserId && (
             <div>
-              {messages.map((message, idx) => (
-                <div key={idx}>{message.text}</div>
+              {messagesNoDuplicates.map((message) => (
+                <div>
+                  sender:{message.sender} <br/>
+                  my id: {id} <br />
+                  {message.text}
+
+                  </div>
               ))}
             </div>
           )}

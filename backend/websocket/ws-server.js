@@ -31,47 +31,29 @@ const wssServer = (server) => {
       }
     }
 
-    connection.on("message", (message) => {
+    connection.on("message", async (message) => {
       const messageData = JSON.parse(message.toString());
       const { recipient, text } = messageData;
       if (recipient && text) {
+        const messageDoc = await Message.create({
+          sender:connection.userId,
+          recipient: recipient,
+          text: text
+        });
+
         [...wss.clients]
           .filter((c) => c.userId === recipient)
           .forEach((c) =>
             c.send(JSON.stringify({
                 text,
                 sender: connection.userId,
+                recipient: recipient,
+                id:messageDoc._id
               })
             )
           );
       }
     });
-
-    // connection.on("message", async (message) => {
-    //     const messageData = JSON.parse(message.toString());
-    //     const { recipient, text } = messageData;
-    //     try {
-    //         console.log("Received message:", text, recipient);
-    //         if (recipient && text) {
-    //             const messageDocument = await Message.create({
-    //                 sender: connection.userId, // Use userId from connection
-    //                 recipient: recipient,
-    //                 text: text,
-    //             });
-
-    //             [...wss.clients]
-    //                 .filter(c => c.userId === recipient)
-    //                 .forEach(c => c.send(JSON.stringify({
-    //                     text: text,
-    //                     sender: connection.userId,
-    //                     id: messageDocument._id,
-    //                     recipient: recipient
-    //                 })));
-    //         }
-    //     } catch (error) {
-    //         console.error("Error parsing JSON", error);
-    //     }
-    // });
 
     //notify every online user about every online user
     [...wss.clients].forEach((connection) => {
