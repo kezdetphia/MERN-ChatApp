@@ -109,14 +109,17 @@ const Chat = () => {
           )}
 
           {!!selectedUserId && (
-            <div>
+            <div className="overflow-y-scroll">
               {messagesNoDuplicates.map((message) => (
-                <div>
-                  sender:{message.sender} <br/>
-                  my id: {id} <br />
-                  {message.text}
+                <div className={message.sender === id ? 'text-right' : 'text-left'}>
 
+                  <div className={"text-left inline-block p-2 m-2 rounded-m text-sm " + (message.sender === id ? 'bg-blue-500 text-white' : 'bg-white text-gray-500')}>
+                    sender:{message.sender} <br/>
+                    my id: {id} <br />
+                    {message.text}
                   </div>
+
+                </div>
               ))}
             </div>
           )}
