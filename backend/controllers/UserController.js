@@ -2,18 +2,55 @@ const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 require("dotenv").config();
+const Message = require('../models/Message')
 
 const { JWT_SECRET } = process.env;
 const SALT = bcrypt.genSaltSync(8);
 
-//Get user profile
-const getUserProfile = (req, res) => {
-  const { token } = req.cookies;
+// Get user profile
+const getUserProfile = async (req, res) => {
+  const { token } = req.cookies
   jwt.verify(token, JWT_SECRET, (err, userData) => {
     if (err) throw err;
     res.json(userData);
   });
 };
+
+
+const getUserDataFromRequest = async (req,res) => {
+  return new Promise((resolve, reject) => {
+    const token = req.cookies?.token;
+    if (token) {
+      jwt.verify(token, JWT_SECRET, (err, userData) => {
+        if (err) {
+          reject(err); // Reject with the error
+        } else {
+          resolve(userData);
+        }
+      });
+    } else {
+      reject(new Error('No token')); // Reject with an error object
+    }
+  });
+}
+
+//Getting messages from database
+const getMessages = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const userData = await getUserDataFromRequest(req); // Await the Promise
+    const ourUserId = userData.userId;
+    const messages = await Message.find({
+      sender: { $in: [userId, ourUserId] },
+      recipient: { $in: [userId, ourUserId] }
+    }).sort({ createdAt: -1 });
+    res.json(messages);
+  } catch (err) {
+    console.error('Error fetching messages:', err);
+    res.status(500).json({ error: 'Error fetching messages' });
+  }
+};
+
 
 // Signup user
 const registerUser = async (req, res) => {
@@ -59,8 +96,15 @@ const loginUser = async (req, res) => {
 
 
 
+
+
+
+
+
 module.exports = {
   registerUser,
   getUserProfile,
   loginUser,
+  getMessages,
+
 };
