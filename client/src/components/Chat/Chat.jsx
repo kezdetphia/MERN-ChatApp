@@ -1,5 +1,5 @@
 import { UserContext } from "../../context/UserContext";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import Avatar from "./Avatar";
 import Logo from "./Logo";
 import uniqBy from "lodash/uniqBy";
@@ -10,10 +10,10 @@ const Chat = () => {
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [newMessageText, setNewMessageText] = useState("");
   const [messages, setMessages] = useState([]);
-  // const [divUnderMessages] = useRef(null);
+
+  const divUnderMessages = useRef(null);
 
   const { username, id } = useContext(UserContext);
-  console.log('this is usercontext',username)
 
   useEffect(() => {
     // WebSocket connection setup
@@ -22,9 +22,9 @@ const Chat = () => {
     ws.addEventListener("message", handleMessage);
   }, []);
 
-  const showOnLinePeople = (peopleArray) => {
+  const showOnLinePeople = async (peopleArray) => {
     const people = {};
-    peopleArray.forEach(({ userId, username }) => {
+    await peopleArray.forEach(({ userId, username }) => {
       //pairing the userId with the username and setting it to onlinePoeple state
       people[userId] = username;
     });
@@ -34,7 +34,7 @@ const Chat = () => {
   //this is a WebSocket eventListener, therefore this event (e) is
   // referring to the websocket event which has a 'data' key
   const handleMessage = async (e) => {
-    const messageData = JSON.parse(e.data);
+    const messageData = await JSON.parse(e.data);
     console.log({ e, messageData });
     if ("online" in messageData) {
       showOnLinePeople(messageData.online);
@@ -63,12 +63,17 @@ const Chat = () => {
           id: Date.now(),
         },
       ]);
-      const messagesContainer = document.getElementById("messagesContainer");
-      messagesContainer.lastChild.scrollIntoView({ behavior: "smooth" });
     } catch (err) {
       console.error(err);
     }
   };
+
+  useEffect(() => {
+    const div = divUnderMessages.current;
+    if (div) {
+      div.scrollIntoView({ behavior: "smooth", block: "end" });
+    }
+  }, [messages]);
 
   //new object from onlinepeople object state
   //that excludes 'me' the user from contacts list
@@ -97,7 +102,7 @@ const Chat = () => {
 
             <div className="flex gap-2 py-2 pl-4 items-center">
               <Avatar username={username} userId={userId} />
-              {console.log('this is under avatarm' , username)}
+
               <span className="text-gray-500 font-bold">{user}</span>
             </div>
           </div>
@@ -116,10 +121,7 @@ const Chat = () => {
 
           {!!selectedUserId && (
             <div className="relative h-full">
-              <div
-                id="messagesContainer"
-                className="overflow-y-scroll absolute inset-0"
-              >
+              <div className="overflow-y-scroll absolute inset-0 ">
                 {messagesNoDuplicates.map((message) => (
                   <div
                     className={
@@ -140,7 +142,7 @@ const Chat = () => {
                     </div>
                   </div>
                 ))}
-                {/* <div ref={divUnderMessages}></div> */}
+                <div ref={divUnderMessages}></div>
               </div>
             </div>
           )}
