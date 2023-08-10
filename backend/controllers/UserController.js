@@ -41,7 +41,7 @@ const getMessages = async (req, res) => {
     const userData = await getUserDataFromRequest(req); // Await the Promise
     const ourUserId = userData.userId;
     const messages = await Message.find({
-      senderrrrr: { $in: [userId, ourUserId] },
+      sender: { $in: [userId, ourUserId] },
       recipient: { $in: [userId, ourUserId] }
     }).sort({ createdAt: -1 });
     res.json(messages);
