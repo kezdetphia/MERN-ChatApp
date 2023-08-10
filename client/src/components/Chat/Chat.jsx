@@ -8,6 +8,7 @@ import uniqBy from "lodash/uniqBy";
 const Chat = () => {
   const [ws, setWs] = useState(null);
   const [onlinePeople, setOnlinePeople] = useState({});
+  const [offLinePeople, setoffLinePeople] = useState({});
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [newMessageText, setNewMessageText] = useState("");
   const [messages, setMessages] = useState([]);
@@ -17,11 +18,21 @@ const Chat = () => {
   const { username, id } = useContext(UserContext);
 
   useEffect(() => {
+    connectToWs();
+  }, []);
+
+  const connectToWs=()=>{
     // WebSocket connection setup
     const ws = new WebSocket(`ws://localhost:3030`);
     setWs(ws);
     ws.addEventListener("message", handleMessage);
-  }, []);
+    ws.addEventListener('close', ()=>{
+    console.log('Disconnected. Trying to reconnect')
+    setTimeout(()=>{
+      connectToWs()
+    },5000)
+    })
+  }
 
   const showOnLinePeople = async (peopleArray) => {
     const people = {};
@@ -61,7 +72,7 @@ const Chat = () => {
           text: newMessageText,
           sender: id,
           recipient: selectedUserId,
-          id: Date.now(),
+          _id: Date.now(),
         },
       ]);
     } catch (err) {
@@ -79,16 +90,32 @@ const Chat = () => {
 
   useEffect(()=>{
     if (selectedUserId){
-      axios.get('/messages/'+selectedUserId)
+      axios.get('/messages/'+selectedUserId).then(res =>{
+        setMessages(res.data)
+      })
     }
   },[selectedUserId])
+
+  //getting all people except for us and who is NOT online 
+  useEffect(()=>{
+    axios.get('/people').then(res=>{
+      const offLinePeopleArray = res.data
+        .filter(p=> p._id !== id)
+        .filter(p=> !Object.keys(onlinePeople).includes(p._id))
+      const offlinePeople = {}
+      offLinePeopleArray.forEach(p=> {
+        offlinePeople[p._id] = p
+      })
+      setOfflinePeople(offLinePeople)
+    })
+  },[onlinePeople])
 
   //new object from onlinepeople object state
   //that excludes 'me' the user from contacts list
   const onlinePeopleExcludingMe = { ...onlinePeople };
   delete onlinePeopleExcludingMe[id];
 
-  const messagesNoDuplicates = uniqBy(messages, "id");
+  const messagesNoDuplicates = uniqBy(messages, "_id");
 
   return (
     <div className="flex h-screen">
@@ -109,7 +136,7 @@ const Chat = () => {
             )}
 
             <div className="flex gap-2 py-2 pl-4 items-center">
-              <Avatar username={username} userId={userId} />
+              <Avatar online={true} username={username} userId={userId} />
 
               <span className="text-gray-500 font-bold">{user}</span>
             </div>
@@ -132,6 +159,7 @@ const Chat = () => {
               <div className="overflow-y-scroll absolute inset-0 ">
                 {messagesNoDuplicates.map((message) => (
                   <div
+                    key={message._id}
                     className={
                       message.sender === id ? "text-right" : "text-left"
                     }
@@ -144,8 +172,8 @@ const Chat = () => {
                           : "bg-white text-gray-500")
                       }
                     >
-                      sender:{message.sender} <br />
-                      my id: {id} <br />
+                      {/* sender:{message.sender} <br />
+                      my id: {id} <br /> */}
                       {message.text}
                     </div>
                   </div>
