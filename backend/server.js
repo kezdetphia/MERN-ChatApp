@@ -1,54 +1,57 @@
 //dependencies
-const express = require('express')
-const mongoose = require('mongoose')
-const cors = require('cors')
-const cookieParser = require('cookie-parser')
-const { registerUser, getUserProfile, loginUser, getMessages } = require('./controllers/UserController')
-const app = express()
-const wssServer = require('./websocket/ws-server')
-require('dotenv').config()
-require('./controllers/UserController')
+require("dotenv").config();
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const cookieParser = require("cookie-parser");
+const wssServer = require("./websocket/ws-server");
+require("./controllers/UserController");
+const {
+  registerUser,
+  getUserProfile,
+  loginUser,
+  getMessages,
+  getAllUsers,
+} = require("./controllers/UserController");
 
-const {PORT, MONGO_URI, CLIENT_URL}= process.env
+const app = express();
+
+const { PORT, MONGO_URI, CLIENT_URL } = process.env;
 
 app.use(express.json());
-app.use(cookieParser())
+app.use(cookieParser());
 
-app.use(cors({
-  credentials: true,
-  origin: CLIENT_URL
-}))
-
-
-
+app.use(
+  cors({
+    credentials: true,
+    origin: CLIENT_URL,
+  })
+);
 
 //routes
-app.get('/messages/:userId', getMessages)
+app.get("/people", getAllUsers);
 
-app.post('/register', registerUser );
+app.get("/messages/:userId", getMessages);
 
-app.post('/login', loginUser);
+app.post("/register", registerUser);
 
-app.get('/profile', getUserProfile);
+app.post("/login", loginUser);
 
+app.get("/profile", getUserProfile);
 
 //feedback of mongo connection
-mongoose.connect(MONGO_URI, { useNewUrlParser: true })
+mongoose
+  .connect(MONGO_URI, { useNewUrlParser: true })
   .then(() => {
-    console.log('Connected to MongoDB')
+    console.log("Connected to MongoDB");
   })
   .catch((error) => {
     console.log(error);
   });
 
-  
 //App listener
-const server =  app.listen(PORT, ()=>{
-  console.log( `App is listening on port: ${PORT}`)
-})
+const server = app.listen(PORT, () => {
+  console.log(`App is listening on port: ${PORT}`);
+});
 
-wssServer(server)
-
-
-
-
+wssServer(server);

@@ -32,7 +32,7 @@ const wssServer = (server) => {
     }
 
     connection.on("message", async (message) => {
-      const messageData = JSON.parse(message.toString());
+      const messageData = await JSON.parse(message.toString());
       const { recipient, text } = messageData;
       if (recipient && text) {
         const messageDoc = await Message.create({
@@ -48,11 +48,18 @@ const wssServer = (server) => {
                 text,
                 sender: connection.userId,
                 recipient: recipient,
-                id:messageDoc._id
+                _id:messageDoc._id
               })
             )
           );
       }
+    });
+
+    connection.on('close', ()=>{
+      setTimeout(()=>{
+        console.log('Disconnected. Trying to reconnect')
+       
+      },1000 )
     });
 
     //notify every online user about every online user

@@ -43,7 +43,7 @@ const getMessages = async (req, res) => {
     const messages = await Message.find({
       sender: { $in: [userId, ourUserId] },
       recipient: { $in: [userId, ourUserId] }
-    }).sort({ createdAt: -1 });
+    }).sort({ createdAt: 1 });
     res.json(messages);
   } catch (err) {
     console.error('Error fetching messages:', err);
@@ -51,6 +51,10 @@ const getMessages = async (req, res) => {
   }
 };
 
+const getAllUsers = async (req,res)=>{
+  const users = await User.find({}, {'_id':1, username: 1})
+  res.json(users)
+}
 
 // Signup user
 const registerUser = async (req, res) => {
@@ -106,5 +110,6 @@ module.exports = {
   getUserProfile,
   loginUser,
   getMessages,
+  getAllUsers
 
 };
