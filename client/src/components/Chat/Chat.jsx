@@ -1,9 +1,8 @@
-import React, { useContext, useEffect, useState } from "react";
 import { UserContext } from "../../context/UserContext";
+import React, { useContext, useEffect, useState } from "react";
 import Avatar from "./Avatar";
 import Logo from "./Logo";
-import uniqBy from 'lodash/uniqBy';
-
+import uniqBy from "lodash/uniqBy";
 
 const Chat = () => {
   const [ws, setWs] = useState(null);
@@ -11,14 +10,16 @@ const Chat = () => {
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [newMessageText, setNewMessageText] = useState("");
   const [messages, setMessages] = useState([]);
+  // const [divUnderMessages] = useRef(null);
 
   const { username, id } = useContext(UserContext);
+  console.log('this is usercontext',username)
 
   useEffect(() => {
-        // WebSocket connection setup
-        const ws = new WebSocket(`ws://localhost:3030`);
-        setWs(ws);
-        ws.addEventListener("message", handleMessage);
+    // WebSocket connection setup
+    const ws = new WebSocket(`ws://localhost:3030`);
+    setWs(ws);
+    ws.addEventListener("message", handleMessage);
   }, []);
 
   const showOnLinePeople = (peopleArray) => {
@@ -33,14 +34,13 @@ const Chat = () => {
   //this is a WebSocket eventListener, therefore this event (e) is
   // referring to the websocket event which has a 'data' key
   const handleMessage = async (e) => {
-      const messageData = JSON.parse(e.data);
-      console.log({e,messageData})
-      if ("online" in messageData) {
-         showOnLinePeople(messageData.online);
-      } else if ('text' in messageData) {
-        setMessages(prev => ([...prev, {...messageData}]))
-      }
-  
+    const messageData = JSON.parse(e.data);
+    console.log({ e, messageData });
+    if ("online" in messageData) {
+      showOnLinePeople(messageData.online);
+    } else if ("text" in messageData) {
+      setMessages((prev) => [...prev, { ...messageData }]);
+    }
   };
 
   //submit form handling, sends the text and the userId
@@ -52,15 +52,19 @@ const Chat = () => {
           recipient: selectedUserId,
           text: newMessageText,
         })
-        );
-        setNewMessageText("");
-        setMessages((prev) => [...prev, { 
+      );
+      setNewMessageText("");
+      setMessages((prev) => [
+        ...prev,
+        {
           text: newMessageText,
           sender: id,
           recipient: selectedUserId,
-          id: Date.now()
-        }]
-      );
+          id: Date.now(),
+        },
+      ]);
+      const messagesContainer = document.getElementById("messagesContainer");
+      messagesContainer.lastChild.scrollIntoView({ behavior: "smooth" });
     } catch (err) {
       console.error(err);
     }
@@ -71,7 +75,7 @@ const Chat = () => {
   const onlinePeopleExcludingMe = { ...onlinePeople };
   delete onlinePeopleExcludingMe[id];
 
-  const messagesNoDuplicates = uniqBy(messages,'id')
+  const messagesNoDuplicates = uniqBy(messages, "id");
 
   return (
     <div className="flex h-screen">
@@ -92,14 +96,15 @@ const Chat = () => {
             )}
 
             <div className="flex gap-2 py-2 pl-4 items-center">
-              <Avatar username={user} userId={userId} />
+              <Avatar username={username} userId={userId} />
+              {console.log('this is under avatarm' , username)}
               <span className="text-gray-500 font-bold">{user}</span>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="flex flex-col bg-pink-50 w-2/3 p-2 ">
+      <div className="flex flex-col bg-gray-100 w-2/3 p-2 ">
         <div className="flex-grow">
           {!selectedUserId && (
             <div className="flex h-full items-center justify-center">
@@ -111,20 +116,33 @@ const Chat = () => {
 
           {!!selectedUserId && (
             <div className="relative h-full">
-              <div className="overflow-y-scroll absolute inset-0">
+              <div
+                id="messagesContainer"
+                className="overflow-y-scroll absolute inset-0"
+              >
                 {messagesNoDuplicates.map((message) => (
-                  <div className={message.sender === id ? 'text-right' : 'text-left'}>
-
-                    <div className={"text-left inline-block p-2 m-2 rounded-m text-sm " + (message.sender === id ? 'bg-blue-500 text-white' : 'bg-white text-gray-500')}>
-                      sender:{message.sender} <br/>
+                  <div
+                    className={
+                      message.sender === id ? "text-right" : "text-left"
+                    }
+                  >
+                    <div
+                      className={
+                        "text-left inline-block p-2 m-2 rounded-lg text-sm " +
+                        (message.sender === id
+                          ? "bg-blue-500 text-white"
+                          : "bg-white text-gray-500")
+                      }
+                    >
+                      sender:{message.sender} <br />
                       my id: {id} <br />
                       {message.text}
                     </div>
-
                   </div>
                 ))}
+                {/* <div ref={divUnderMessages}></div> */}
               </div>
-            </div>  
+            </div>
           )}
         </div>
         {!!selectedUserId && (
