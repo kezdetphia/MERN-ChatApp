@@ -3,7 +3,7 @@ const express = require('express')
 const mongoose = require('mongoose')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
-const { registerUser, getUserProfile, loginUser } = require('./controllers/UserController')
+const { registerUser, getUserProfile, loginUser, getMessages } = require('./controllers/UserController')
 const app = express()
 const wssServer = require('./websocket/ws-server')
 require('dotenv').config()
@@ -20,7 +20,11 @@ app.use(cors({
 }))
 
 
+
+
 //routes
+app.get('/messages/:userId', getMessages)
+
 app.post('/register', registerUser );
 
 app.post('/login', loginUser);

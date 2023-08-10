@@ -1,5 +1,6 @@
 import { UserContext } from "../../context/UserContext";
 import React, { useContext, useEffect, useState, useRef } from "react";
+import axios from "axios";
 import Avatar from "./Avatar";
 import Logo from "./Logo";
 import uniqBy from "lodash/uniqBy";
@@ -74,6 +75,13 @@ const Chat = () => {
       div.scrollIntoView({ behavior: "smooth", block: "end" });
     }
   }, [messages]);
+
+
+  useEffect(()=>{
+    if (selectedUserId){
+      axios.get('/messages/'+selectedUserId)
+    }
+  },[selectedUserId])
 
   //new object from onlinepeople object state
   //that excludes 'me' the user from contacts list
