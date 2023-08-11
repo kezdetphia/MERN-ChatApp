@@ -20,14 +20,14 @@ function App() {
 
   return (
     <>
-      <div >
+      <div>
         <UserContextProvider>
-          <Chat/>
-          <RegisterAndLoginForm /> 
+          <Chat />
+          <RegisterAndLoginForm />
         </UserContextProvider>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default App
+export default App;

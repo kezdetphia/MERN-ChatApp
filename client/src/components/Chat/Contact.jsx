@@ -22,4 +22,4 @@ const Contact = ({ id, onClick, selected, username, online }) => {
   );
 };
 
-export default Contact;
+export default Contact; 

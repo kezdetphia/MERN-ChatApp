@@ -4,11 +4,12 @@ import axios from "axios";
 import Contact from "./Contact";
 import Logo from "./Logo";
 import uniqBy from "lodash/uniqBy";
+import differenceBy from "lodash/differenceBy";
 
 const Chat = () => {
   const [ws, setWs] = useState(null);
   const [onlinePeople, setOnlinePeople] = useState({});
-  const [offLinePeople, setoffLinePeople] = useState({});
+  const [offlinePeople, setoffLinePeople] = useState({});
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [newMessageText, setNewMessageText] = useState("");
   const [messages, setMessages] = useState([]);
@@ -30,13 +31,13 @@ const Chat = () => {
       console.log("Disconnected. Trying to reconnect");
       setTimeout(() => {
         connectToWs();
-      }, 5000);
+      }, 1000);
     });
   };
 
-  const showOnLinePeople = async (peopleArray) => {
+  const showOnLinePeople = (peopleArray) => {
     const people = {};
-    await peopleArray.forEach(({ userId, username }) => {
+    peopleArray.forEach(({ userId, username }) => {
       //pairing the userId with the username and setting it to onlinePoeple state
       people[userId] = username;
     });
@@ -45,8 +46,8 @@ const Chat = () => {
 
   //this is a WebSocket eventListener, therefore this event (e) is
   // referring to the websocket event which has a 'data' key
-  const handleMessage = async (e) => {
-    const messageData = await JSON.parse(e.data);
+  const handleMessage = (e) => {
+    const messageData = JSON.parse(e.data);
     console.log({ e, messageData });
     if ("online" in messageData) {
       showOnLinePeople(messageData.online);
@@ -56,10 +57,10 @@ const Chat = () => {
   };
 
   //submit form handling, sends the text and the userId
-  const sendMessage = async (e) => {
+  const sendMessage = (e) => {
     e.preventDefault();
     try {
-      await ws.send(
+      ws.send(
         JSON.stringify({
           recipient: selectedUserId,
           text: newMessageText,
@@ -87,27 +88,31 @@ const Chat = () => {
     }
   }, [messages]);
 
+  //getting all people except for us and who is NOT online
+  useEffect(() => {
+    axios.get("/people").then((res) => {
+      console.log("this is res.data", res.data);
+      const offlinePeopleArray = res.data
+        .filter((p) => p._id !== id)
+        .filter((p) => !Object.keys(onlinePeople).includes(p._id));
+      // const offlinePeopleArray = differenceBy(res.data, Object.keys(onlinePeople), "_id");
+      console.log("this offline array", offlinePeopleArray);
+      const offlinePeople = {};
+      offlinePeopleArray.forEach((p) => {
+        offlinePeople[p._id] = p;
+      });
+      setoffLinePeople(offlinePeople);
+      console.log("this is offlinePeople ", offlinePeople);
+    });
+  }, [onlinePeople]);
+
   useEffect(() => {
     if (selectedUserId) {
-      axios.get("/messages/"+selectedUserId).then((res) => {
+      axios.get("/messages/" + selectedUserId).then((res) => {
         setMessages(res.data);
       });
     }
   }, [selectedUserId]);
-
-  //getting all people except for us and who is NOT online
-  useEffect(() => {
-    axios.get("/people").then((res) => {
-      const offLinePeopleArray = res.data
-        .filter((p) => p._id !== id)
-        .filter((p) => !Object.keys(onlinePeople).includes(p._id));
-      const offlinePeople = {};
-      offLinePeopleArray.forEach((p) => {
-        offlinePeople[p._id] = p;
-      });
-      setoffLinePeople(offLinePeople);
-    });
-  }, [onlinePeople]);
 
   //new object from onlinepeople object state
   //that excludes 'me' the user from contacts list
@@ -115,7 +120,7 @@ const Chat = () => {
   delete onlinePeopleExcludingMe[id];
 
   const messagesNoDuplicates = uniqBy(messages, "_id");
-
+  console.log("onlineexcliding me", onlinePeopleExcludingMe);
   return (
     <div className="flex h-screen">
       <div className="bg-white w-1/3 border border-gray-400 shadow-lg ">
@@ -127,6 +132,19 @@ const Chat = () => {
             id={userId}
             online={true}
             username={onlinePeopleExcludingMe[userId]}
+            onClick={() => {
+              setSelectedUserId(userId);
+              console.log(username);
+            }}
+            selected={userId === selectedUserId}
+          />
+        ))}
+        {Object.keys(offlinePeople).map((userId) => (
+          <Contact
+            key={userId}
+            id={userId}
+            online={false}
+            username={offlinePeople[userId].username} // Access the username using the user ID
             onClick={() => setSelectedUserId(userId)}
             selected={userId === selectedUserId}
           />
