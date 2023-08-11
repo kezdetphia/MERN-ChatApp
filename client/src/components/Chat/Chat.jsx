@@ -1,7 +1,7 @@
 import { UserContext } from "../../context/UserContext";
 import React, { useContext, useEffect, useState, useRef } from "react";
 import axios from "axios";
-import Avatar from "./Avatar";
+import Contact from "./Contact";
 import Logo from "./Logo";
 import uniqBy from "lodash/uniqBy";
 
@@ -21,18 +21,18 @@ const Chat = () => {
     connectToWs();
   }, []);
 
-  const connectToWs=()=>{
+  const connectToWs = () => {
     // WebSocket connection setup
     const ws = new WebSocket(`ws://localhost:3030`);
     setWs(ws);
     ws.addEventListener("message", handleMessage);
-    ws.addEventListener('close', ()=>{
-    console.log('Disconnected. Trying to reconnect')
-    setTimeout(()=>{
-      connectToWs()
-    },5000)
-    })
-  }
+    ws.addEventListener("close", () => {
+      console.log("Disconnected. Trying to reconnect");
+      setTimeout(() => {
+        connectToWs();
+      }, 5000);
+    });
+  };
 
   const showOnLinePeople = async (peopleArray) => {
     const people = {};
@@ -87,28 +87,27 @@ const Chat = () => {
     }
   }, [messages]);
 
-
-  useEffect(()=>{
-    if (selectedUserId){
-      axios.get('/messages/'+selectedUserId).then(res =>{
-        setMessages(res.data)
-      })
+  useEffect(() => {
+    if (selectedUserId) {
+      axios.get("/messages/"+selectedUserId).then((res) => {
+        setMessages(res.data);
+      });
     }
-  },[selectedUserId])
+  }, [selectedUserId]);
 
-  //getting all people except for us and who is NOT online 
-  useEffect(()=>{
-    axios.get('/people').then(res=>{
+  //getting all people except for us and who is NOT online
+  useEffect(() => {
+    axios.get("/people").then((res) => {
       const offLinePeopleArray = res.data
-        .filter(p=> p._id !== id)
-        .filter(p=> !Object.keys(onlinePeople).includes(p._id))
-      const offlinePeople = {}
-      offLinePeopleArray.forEach(p=> {
-        offlinePeople[p._id] = p
-      })
-      setOfflinePeople(offLinePeople)
-    })
-  },[onlinePeople])
+        .filter((p) => p._id !== id)
+        .filter((p) => !Object.keys(onlinePeople).includes(p._id));
+      const offlinePeople = {};
+      offLinePeopleArray.forEach((p) => {
+        offlinePeople[p._id] = p;
+      });
+      setoffLinePeople(offLinePeople);
+    });
+  }, [onlinePeople]);
 
   //new object from onlinepeople object state
   //that excludes 'me' the user from contacts list
@@ -122,25 +121,15 @@ const Chat = () => {
       <div className="bg-white w-1/3 border border-gray-400 shadow-lg ">
         <Logo />
         {username}
-        {Object.entries(onlinePeopleExcludingMe).map(([userId, user]) => (
-          <div
+        {Object.entries(onlinePeopleExcludingMe).map(([userId, username]) => (
+          <Contact
             key={userId}
+            id={userId}
+            online={true}
+            username={onlinePeopleExcludingMe[userId]}
             onClick={() => setSelectedUserId(userId)}
-            className={
-              "border-b border-gray-100 flex items-center gap-2 cursor-pointer " +
-              (userId === selectedUserId ? "bg-blue-200" : "")
-            }
-          >
-            {userId === selectedUserId && (
-              <div className=" w-1 bg-blue-500 h-12 rounded-r-md "></div>
-            )}
-
-            <div className="flex gap-2 py-2 pl-4 items-center">
-              <Avatar online={true} username={username} userId={userId} />
-
-              <span className="text-gray-500 font-bold">{user}</span>
-            </div>
-          </div>
+            selected={userId === selectedUserId}
+          />
         ))}
       </div>
 

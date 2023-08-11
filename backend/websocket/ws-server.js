@@ -1,7 +1,9 @@
 const ws = require("ws");
 const jwt = require("jsonwebtoken");
-const { JWT_SECRET } = process.env;
+// const { JWT_SECRET } = process.env;
 const Message = require("../models/Message");
+
+JWT_SECRET='fdsafdjaksljfldakdhffdasfdsgefdfd'
 
 const wssServer = (server) => {
   const wss = new ws.WebSocketServer({ server });
