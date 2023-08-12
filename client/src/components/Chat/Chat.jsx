@@ -82,6 +82,7 @@ const Chat = () => {
 
   const logOut = ()=>{
     axios.post('/logout').then(()=>{
+      setWs(null)
       setId(null)
       setUsername(null)
     })

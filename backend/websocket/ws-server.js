@@ -25,21 +25,22 @@ const wssServer = (server) => {
       });
     }
 
-    // connection.isAlive = true;
+    connection.isAlive = true;
 
-    // connection.timer = setInterval(()=>{
-    //   connection.ping()
-    //   connection.deathTime = setTimeout(()=>{
-    //     connection.isAlive = false;
-    //     connection.terminate()
-    //     notifyAboutOnlinePeople()
-    //     console.log('dead')
-    //   },5000)
-    // }, 10000)
+    connection.timer = setInterval(()=>{
+      connection.ping()
+      connection.deathTimer = setTimeout(()=>{
+        connection.isAlive = false;
+        clearInterval(connection.timer)
+        connection.terminate()
+        notifyAboutOnlinePeople()
+        console.log('dead')
+      },1000)
+    }, 5000)
 
-    // connection.on('pong', ()=>{
-    //   console.log('pong')
-    // })
+    connection.on('pong', ()=>{
+      clearTimeout(connection.deathTimer)
+    })
 
     //read username and id from cookie for this
     //particular connection
