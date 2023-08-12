@@ -8,10 +8,11 @@ const wssServer = require("./websocket/ws-server");
 require("./controllers/UserController");
 const {
   registerUser,
-  getUserProfile,
   loginUser,
-  getMessages,
+  getUserProfile,
   getAllUsers,
+  getMessages,
+  logOutUser
 } = require("./controllers/UserController");
 
 const app = express();
@@ -36,6 +37,8 @@ app.get("/messages/:userId", getMessages);
 app.post("/register", registerUser);
 
 app.post("/login", loginUser);
+
+app.post("/logout", logOutUser);
 
 app.get("/profile", getUserProfile);
 

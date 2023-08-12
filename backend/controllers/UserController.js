@@ -133,10 +133,16 @@ const loginUser = async (req, res) => {
   }
 };
 
+//setting the cookie to null
+const logOutUser = (req,res)=>{
+  res.cookie('token', '', {samSite:'none', secure:true}).json('logout ok')
+}
+
 module.exports = {
   registerUser,
   getUserProfile,
   loginUser,
   getMessages,
   getAllUsers,
+  logOutUser
 };
