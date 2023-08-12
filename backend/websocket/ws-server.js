@@ -11,6 +11,36 @@ const wssServer = (server) => {
   //this event listener triggers when a new WS connection
   //is established between the client and server
   wss.on("connection", (connection, req) => {
+
+    const notifyAboutOnlinePeople =()=>{
+      [...wss.clients].forEach((connection) => {
+        connection.send(
+          JSON.stringify({
+            online: [...wss.clients].map((c) => ({
+              userId: c.userId,
+              username: c.username,
+            })),
+          })
+        );
+      });
+    }
+
+    connection.isAlive = true;
+
+    connection.timer = setInterval(()=>{
+      connection.ping()
+      connection.deathTime = setTimeout(()=>{
+        connection.isAlive = false;
+        connection.terminate()
+        notifyAboutOnlinePeople()
+        console.log('dead')
+      },5000)
+    }, 10000)
+
+    connection.on('pong', ()=>{
+      console.log('pong')
+    })
+
     //read username and id from cookie for this
     //particular connection
     console.log("WebSocket connected");
@@ -57,24 +87,9 @@ const wssServer = (server) => {
       }
     });
 
-    connection.on('close', ()=>{
-      setTimeout(()=>{
-        console.log('Disconnected. Trying to reconnect')
-       
-      },1000 )
-    });
-
     //notify every online user about every online user
-    [...wss.clients].forEach((connection) => {
-      connection.send(
-        JSON.stringify({
-          online: [...wss.clients].map((c) => ({
-            userId: c.userId,
-            username: c.username,
-          })),
-        })
-      );
-    });
+    notifyAboutOnlinePeople()
+
   });
 };
 
