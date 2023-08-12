@@ -8,15 +8,29 @@ const { JWT_SECRET } = process.env;
 const SALT = bcrypt.genSaltSync(8);
 
 // Get user profile
+// const getUserProfile = async (req, res) => {
+//   const token = req.cookies?.token
+//   if (token) {
+//     jwt.verify(token, JWT_SECRET, (err, userData) => {
+//       if (err) throw err;
+//       res.json(userData);
+//     });
+//   }else {
+//     res.status(401).json('no token')
+//   }
+// };
 const getUserProfile = async (req, res) => {
-  const token = req.cookies?.token
+  const token = req.cookies?.token;
   if (token) {
     jwt.verify(token, JWT_SECRET, (err, userData) => {
-      if (err) throw err;
+      if (err) {
+        // Instead of throwing an error, send an error response
+        return res.status(401).json('token verification failed');
+      }
       res.json(userData);
     });
-  }else {
-    res.status(401).json('no token')
+  } else {
+    res.status(401).json('no token');
   }
 };
 

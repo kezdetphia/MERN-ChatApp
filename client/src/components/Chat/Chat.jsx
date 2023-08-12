@@ -96,7 +96,6 @@ const Chat = () => {
         .filter((p) => p._id !== id)
         .filter((p) => !Object.keys(onlinePeople).includes(p._id));
       // const offlinePeopleArray = differenceBy(res.data, Object.keys(onlinePeople), "_id");
-      console.log("this offline array", offlinePeopleArray);
       const offlinePeople = {};
       offlinePeopleArray.forEach((p) => {
         offlinePeople[p._id] = p;
