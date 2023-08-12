@@ -84,15 +84,13 @@ const Chat = () => {
 
   const sendFile = (e)=>{
     const reader = new FileReader()
-    const file = e.target.files[0]
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(e.target.files[0]);
     reader.onload =()=>{
       sendMessage(null, {
-        info: file.name,
+        name: e.target.files[0].name,
         data: reader.result
       })
     }
-
   }
 
   const logOut = ()=>{

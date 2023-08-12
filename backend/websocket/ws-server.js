@@ -1,6 +1,7 @@
 const ws = require("ws");
 const jwt = require("jsonwebtoken");
-// const { JWT_SECRET } = process.env;
+const fs = require('fs')
+
 const Message = require("../models/Message");
 
 JWT_SECRET='fdsafdjaksljfldakdhffdasfdsgefdfd'
@@ -68,8 +69,17 @@ const wssServer = (server) => {
       const messageData = await JSON.parse(message.toString());
       const { recipient, text, file } = messageData;
       if(file){
-        console.log({file})
+        const parts = file.name.split('.')
+        const ext = parts[parts.length -1]
+        const fileName = Date.now()+ '.'+ ext
+        const path = __dirname + '/uploads/' + fileName
+        console.log('Path:', path);
+        const bufferData = new Buffer.from(file.data, 'base64')
+        fs.writeFile(path,bufferData ,()=>{
+          console.log('file saved:' +path)
+        })
       }
+
       if (recipient && text) {
         const messageDoc = await Message.create({
           sender:connection.userId,
