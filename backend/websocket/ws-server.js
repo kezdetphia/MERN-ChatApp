@@ -1,9 +1,11 @@
 const ws = require("ws");
 const jwt = require("jsonwebtoken");
 const fs = require('fs')
-require("dotenv").config();
+// require("dotenv").config();
 
-const {JWT_SECRET} = process.env
+// const {JWT_SECRET} = process.env
+const JWT_SECRET  = process.env.JWT_SECRET;
+
 
 const Message = require("../models/Message");
 
