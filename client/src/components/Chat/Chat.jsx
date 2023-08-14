@@ -116,7 +116,6 @@ const Chat = () => {
   useEffect(() => {
     // '/people' fetch every user then filtering out the actual user(me) and people that are online
     axios.get("/people").then((res) => {
-      console.log("this is res.data", res.data);
       const offlinePeopleArray = res.data
         .filter((p) => p._id !== id)
         .filter((p) => !Object.keys(onlinePeople).includes(p._id));
@@ -126,7 +125,6 @@ const Chat = () => {
         offlinePeople[p._id] = p;
       });
       setoffLinePeople(offlinePeople);
-      console.log("this is offlinePeople ", offlinePeople);
     });
   }, [onlinePeople]);
 
@@ -150,8 +148,6 @@ const Chat = () => {
       <div className="bg-white w-1/3 border border-gray-400 shadow-lg flex flex-col ">
         <div className="flex-grow">
           <Logo />
-          {username}
-          {console.log('thus uis chat username', username)}
           {Object.entries(onlinePeopleExcludingMe).map(([userId, username]) => (
             <Contact
               key={userId}

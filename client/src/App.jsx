@@ -12,7 +12,7 @@ function App() {
   //to set our cookies from api
   axios.defaults.withCredentials= true
   const {username } = useContext(UserContext)
-  console.log('this is app.jsx username',username)
+  console.log('this is logged in username:',username)
 
   return (
     <>
