@@ -83,16 +83,16 @@ const Chat = () => {
   };
 
   //Function to handle file upload
-  const sendFile = (e) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(e.target.files[0]);
-    reader.onload = () => {
-      sendMessage(null, {
-        name: e.target.files[0].name,
-        data: reader.result,
-      });
-    };
-  };
+  // const sendFile = (e) => {
+  //   const reader = new FileReader();
+  //   reader.readAsDataURL(e.target.files[0]);
+  //   reader.onload = () => {
+  //     sendMessage(null, {
+  //       name: e.target.files[0].name,
+  //       data: reader.result,
+  //     });
+  //   };
+  // };
 
   //Function to log out user
   const logOut = () => {
@@ -251,7 +251,7 @@ const Chat = () => {
               onChange={(e) => setNewMessageText(e.target.value)}
               value={newMessageText}
             />
-            <label
+            {/* <label
               type="button"
               className="bg-gray-300 p-2 text-blue-500 cursor-pointer "
             >
@@ -268,7 +268,7 @@ const Chat = () => {
                   clipRule="evenodd"
                 />
               </svg>
-            </label>
+            </label> */}
             <button type="file" className=" text-blue-500 "></button>
 
             <button
