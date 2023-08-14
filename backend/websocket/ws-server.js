@@ -71,29 +71,18 @@ const wssServer = (server) => {
     //Event listener to receive messages from clients
     connection.on("message", async (message) => {
       const messageData = await JSON.parse(message.toString());
-      const { recipient, text, file } = messageData;
+      const { recipient, text } = messageData;
       //Handle file data if present
-      let filename = null;
-      if(file){
-        const parts = file.name.split('.')
-        const ext = parts[parts.length -1]
-        const filename = Date.now()+ '.'+ ext
-        const path = __dirname + '/uploads/' + filename
-        console.log('Path:', path);
-        const bufferData = new Buffer.from(file.data, 'base64')
-        fs.writeFile(path,bufferData ,()=>{
-          console.log('file saved:' +path)
-        })
-      }
+      
       //Check if recipient and message content are provided
-      if (recipient && (text || file)) {
+      if (recipient && text ) {
         //Create a message document and store it in database
         const messageDoc = await Message.create({
           sender:connection.userId,
           recipient: recipient,
           text: text,
-          file: file ? filename : null
-        });
+     
+          });
         //Send the message to the specified recipients' clients
         [...wss.clients]
           .filter((c) => c.userId === recipient)
