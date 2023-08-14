@@ -1,11 +1,11 @@
 //dependencies
-// require("dotenv").config();
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const wssServer = require("./backend/websocket/ws-server");
-require("./backend/controllers/UserController");
+const wssServer = require("./websocket/ws-server");
+require("./controllers/UserController");
 const {
   registerUser,
   loginUser,
@@ -13,14 +13,14 @@ const {
   getAllUsers,
   getMessages,
   logOutUser
-} = require("./backend/controllers/UserController");
+} = require("./controllers/UserController");
 
 const app = express();
 
-// const { PORT, MONGO_URI, CLIENT_URL } = process.env;
-const PORT = process.env.PORT;
-const MONGO_URI = process.env.MONGO_URI;
-const CLIENT_URL = process.env.CLIENT_URL;
+const { PORT, MONGO_URI, CLIENT_URL } = process.env;
+// const PORT = process.env.PORT;
+// const MONGO_URI = process.env.MONGO_URI;
+// const CLIENT_URL = process.env.CLIENT_URL;
 
 app.use(express.json());
 app.use(cookieParser());

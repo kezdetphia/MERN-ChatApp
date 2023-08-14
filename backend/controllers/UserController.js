@@ -1,11 +1,10 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-// require("dotenv").config();
+require("dotenv").config();
 const Message = require("../models/Message");
 
-// const { JWT_SECRET } = process.env;
-const JWT_SECRET  = process.env.JWT_SECRET;
+const { JWT_SECRET } = process.env;
 const SALT = bcrypt.genSaltSync(8);
 
 
