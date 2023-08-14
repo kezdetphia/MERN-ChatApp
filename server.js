@@ -4,8 +4,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const wssServer = require("./websocket/ws-server");
-require("./controllers/UserController");
+const wssServer = require("./backend/websocket/ws-server");
+require("./backend/controllers/UserController");
 const {
   registerUser,
   loginUser,
@@ -13,7 +13,7 @@ const {
   getAllUsers,
   getMessages,
   logOutUser
-} = require("./controllers/UserController");
+} = require("./backend/controllers/UserController");
 
 const app = express();
 
