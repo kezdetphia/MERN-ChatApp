@@ -1,1 +1,1 @@
-web: npm start -C backend
+web: npm start 
