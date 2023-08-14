@@ -4,6 +4,7 @@ import Chat from './components/Chat/Chat'
 import axios from 'axios'
 import {UserContext, UserContextProvider } from './context/UserContext'
 import { useContext } from "react";
+import Routes from './components/Routes';
 
 
 function App() {
@@ -11,19 +12,13 @@ function App() {
   //to set our cookies from api
   axios.defaults.withCredentials= true
   const {username } = useContext(UserContext)
-  console.log(username)
-
-  if(username){
-    return 'logged in' + username
-  }
-
+  console.log('this is app.jsx username',username)
 
   return (
     <>
       <div>
         <UserContextProvider>
-          <Chat />
-          <RegisterAndLoginForm />
+          <Routes />
         </UserContextProvider>
       </div>
     </>
