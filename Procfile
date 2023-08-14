@@ -1,1 +1,1 @@
-web: npx nodemon backend/server.js
+web: npm start -C backend
